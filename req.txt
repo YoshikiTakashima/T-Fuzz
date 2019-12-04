@@ -77,8 +77,6 @@ requests==2.18.4
 ROPGadget==5.4
 rpyc==3.4.4
 scandir==1.7
-shellphish-afl==1.1
-shellphish-qemu==0.9.7
 simplegeneric==0.8.1
 six==1.11.0
 snowballstemmer==1.2.1
