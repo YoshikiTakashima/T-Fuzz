@@ -1,0 +1,45 @@
+
+#Please uncomment deb-src lines in /etc/apt/sources.list 
+#Install core deps
+sudo apt-get install build-essential \
+     gcc-multilib libtool automake autoconf bison \
+     debootstrap debian-archive-keyring \
+     libtool-bin # \
+     #libgtk2.0-dev \ #in question, does it work?
+     
+     
+sudo apt-get build-dep qemu-system
+sudo apt-get install libacl1-dev
+sudo apt-get install python-pip python-virtualenv
+sudo pip install virtualenvwrapper
+
+
+#Download libraries
+git clone https://github.com/radare/radare2.git
+git clone https://github.com/HexHive/T-Fuzz.git
+cd radare2
+su -c ./sys/install.sh fuzz
+cd ..
+
+echo -e "export WORKON_HOME=$HOME/.virtual_envs\nsource /usr/local/bin/virtualenvwrapper.sh" \
+     >> ~/.bashrc
+source ~/.bashrc
+mkvirtualenv tfuzz-env
+workon tfuzz-env
+
+cd T-Fuzz
+#Remove shellphish-afl and shellphish-qemu. They cause install to crash. 
+#Remove:
+#	shellphish-afl==1.1
+#	shellphish-qemu==0.9.7
+
+sudo pip install -r req.txt
+sudo pip install fuzzer
+#ignore errors,for shellphish, it's actually installed
+
+sudo sysctl kernel.core_pattern=core
+sudo sysctl kernel.sched_child_runs_first=1
+
+echo "This fuzzer needs 'sudo' to run. (Intel PT)"
+echo 'Use the following: sudo /home/fuzz/.virtual_envs/tfuzz-env/bin/python -W ignore ./TFuzz  --program  target_programs/uniq  --work_dir ~/test_uniq/ --seed_dir ~/seed_uniq/ --target_opts "@@"'
+echo 'Modify angr's misc/util.py to eliminate Deprication error.'
